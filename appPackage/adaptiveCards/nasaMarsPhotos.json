@@ -1,0 +1,44 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+      {
+        "type": "Container",
+        "$data": "${$root}",
+        "items": [
+          {
+            "type": "TextBlock",
+            "text": "🔴 ${if(camera.full_name, camera.full_name, 'Mars Rover Photo')}",
+            "weight": "Bolder",
+            "wrap": true
+          },
+          {
+            "type": "Image",
+            "url": "${if(img_src, img_src, '')}",
+            "size": "Large",
+            "altText": "Mars rover photo"
+          },
+          {
+            "type": "TextBlock",
+            "text": "Rover: ${if(rover.name, rover.name, 'N/A')} | Sol: ${if(sol, sol, 'N/A')}",
+            "isSubtle": true,
+            "wrap": true
+          },
+          {
+            "type": "TextBlock",
+            "text": "📅 Earth date: ${if(earth_date, earth_date, 'N/A')}",
+            "isSubtle": true,
+            "wrap": true
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "type": "Action.OpenUrl",
+        "title": "View Full Photo",
+        "url": "${img_src}"
+      }
+    ]
+}

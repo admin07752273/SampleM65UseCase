@@ -1,0 +1,44 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+      {
+        "type": "Container",
+        "items": [
+          {
+            "type": "TextBlock",
+            "text": "🌌 ${if(title, title, 'Astronomy Picture of the Day')}",
+            "size": "Large",
+            "weight": "Bolder",
+            "wrap": true
+          },
+          {
+            "type": "Image",
+            "url": "${if(url, url, '')}",
+            "size": "Large",
+            "altText": "${if(title, title, 'NASA APOD')}"
+          },
+          {
+            "type": "TextBlock",
+            "text": "${if(explanation, explanation, 'No description available.')}",
+            "wrap": true,
+            "maxLines": 5
+          },
+          {
+            "type": "TextBlock",
+            "text": "📅 ${if(date, date, 'N/A')}",
+            "isSubtle": true,
+            "wrap": true
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "type": "Action.OpenUrl",
+        "title": "View Full Image",
+        "url": "${if(hdurl, hdurl, url)}"
+      }
+    ]
+}
