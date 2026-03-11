@@ -49,9 +49,10 @@ op mergePullRequest is GitHubAuthAPI.mergePullRequest;
 op getProjectInsights is GitHubAuthAPI.getProjectInsights;
 
 // Copilot Studio AI Assistant (via Direct Line)
+op generateToken is CopilotStudioAPI.generateToken;
 op startConversation is CopilotStudioAPI.startConversation;
-op sendQuery is CopilotStudioAPI.sendQuery;
-op getResponse is CopilotStudioAPI.getResponse;
+op sendMessage is CopilotStudioAPI.sendMessage;
+op getActivities is CopilotStudioAPI.getActivities;
 
 op getApod is NasaAPI.getApod;
 op getMarsPhotos is NasaAPI.getMarsPhotos;

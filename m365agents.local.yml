@@ -13,16 +13,6 @@ provision:
     # the specified environment variable(s).
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
-  - uses: apiKey/register
-    with:
-      name: BearerAuth
-      appId: ${{TEAMS_APP_ID}}
-      apiSpecPath: ./appPackage/.generated/copilotstudioapi-openapi.yml
-      primaryClientSecret: ${{DIRECT_LINE_SECRET}}
-      applicableToApps: SpecificApp
-      targetAudience: HomeTenant
-    writeToEnvironmentFile:
-      registrationId: BEARERAUTH_REGISTRATION_ID
   - uses: oauth/register
     with:
       name: OAuth2Auth
@@ -53,6 +43,16 @@ provision:
       manifestPath: ./appPackage/manifest.json
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
+
+  # Register API key for Direct Line (after TypeSpec compile generates the spec)
+  - uses: apiKey/register
+    with:
+      name: ApiKeyAuth
+      appId: ${{TEAMS_APP_ID}}
+      apiSpecPath: ./appPackage/.generated/copilotstudioapi-openapi.yml
+      primaryClientSecret: ${{DIRECT_LINE_SECRET}}
+    writeToEnvironmentFile:
+      registrationId: APIKEYAUTH_REGISTRATION_ID
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage

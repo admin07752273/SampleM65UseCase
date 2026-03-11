@@ -10,47 +10,84 @@ using TypeSpec.M365.Copilot.Actions;
 @actions(#{
   nameForHuman: "Copilot Studio AI Assistant",
   descriptionForHuman: "Chat with the Generative AI Query Assistant powered by Copilot Studio via Direct Line.",
-  descriptionForModel: "Use this action to send queries to the Copilot Studio Generative AI Query Assistant via Direct Line. Call startConversation first to get a conversationId, then call sendQuery with the conversationId and the user's question, then call getResponse with the conversationId to retrieve the bot's reply."
+  descriptionForModel: "Use this action to chat with the Copilot Studio agent via Direct Line. Flow: 1) generateToken to get a short-lived token, 2) startConversation to open a session, 3) sendMessage to post user text, 4) getActivities to poll for the bot reply."
 })
-@useAuth(BearerAuth)
+@useAuth(ApiKeyAuth<ApiKeyLocation.header, "Authorization">)
 namespace CopilotStudioAPI {
-  /** Start a new Direct Line conversation. Returns a conversationId and token for subsequent calls. */
+
+  // --- Step 1: Generate a Direct Line token from the secret ---
+  /** Exchange the Direct Line secret for a short-lived conversation token. */
+  @route("/v3/directline/tokens/generate")
+  @post
+  op generateToken(
+    @body tokenRequest: TokenRequest
+  ): TokenResponse | ErrorResponse;
+
+  // --- Step 2: Start a conversation ---
+  /** Start a new Direct Line conversation. Returns a conversationId, token, and streamUrl. */
   @route("/v3/directline/conversations")
   @post
-  op startConversation(): ConversationResponse;
+  op startConversation(): ConversationResponse | ErrorResponse;
 
-  /** Send a user message to an active Direct Line conversation. */
+  // --- Step 3: Send a message to the bot ---
+  /** Send a user message into the conversation. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @post
-  op sendQuery(
+  op sendMessage(
     @path conversationId: string,
     @body activity: ActivityRequest
-  ): SendActivityResponse;
+  ): SendActivityResponse | ErrorResponse;
 
-  /** Retrieve activities (including bot responses) from a Direct Line conversation. Use the watermark to get only new activities. */
+  // --- Step 4: Get activities (bot replies) ---
+  /** Retrieve all activities in the conversation. Pass watermark to get only new activities since the last poll. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @get
-  op getResponse(
+  op getActivities(
     @path conversationId: string,
     @query watermark?: string
-  ): ActivitySet;
+  ): ActivitySet | ErrorResponse;
 
-  model ConversationResponse {
-    conversationId: string;
-    token: string;
-    expires_in: int32;
-    streamUrl?: string;
+  // --- Request Models ---
+
+  model TokenRequest {
+    /** User identity for the token. The id must start with "dl_". */
+    user: TokenUser;
+  }
+
+  model TokenUser {
+    /** Unique user ID. Must start with "dl_". */
+    id: string;
+    /** Display name of the user. */
+    name?: string;
   }
 
   model ActivityRequest {
     type: "message";
     from: ActivityFrom;
     text: string;
+    locale?: string;
   }
 
   model ActivityFrom {
+    /** User or bot ID. For users, must start with "dl_". */
     id: string;
     name?: string;
+    role?: string;
+  }
+
+  // --- Response Models ---
+
+  model TokenResponse {
+    conversationId: string;
+    token: string;
+    expires_in: int32;
+  }
+
+  model ConversationResponse {
+    conversationId: string;
+    token: string;
+    expires_in: int32;
+    streamUrl?: string;
   }
 
   model SendActivityResponse {
@@ -66,14 +103,35 @@ namespace CopilotStudioAPI {
     type: string;
     id?: string;
     timestamp?: string;
+    channelId?: string;
     from?: ActivityFrom;
+    conversation?: ConversationRef;
     text?: string;
+    locale?: string;
+    inputHint?: string;
     replyToId?: string;
+    serviceUrl?: string;
     attachments?: Attachment[];
+  }
+
+  model ConversationRef {
+    id: string;
   }
 
   model Attachment {
     contentType: string;
     content?: string;
+  }
+
+  // --- Error Model ---
+
+  model ErrorResponse {
+    @statusCode statusCode: 400 | 401 | 403 | 404 | 500;
+    error: ErrorDetail;
+  }
+
+  model ErrorDetail {
+    code: string;
+    message: string;
   }
 }

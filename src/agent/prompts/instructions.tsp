@@ -29,10 +29,11 @@ namespace Prompts {
     **DECISION RULE**: If the user asks a general question like "Get the latest issues from GitHub" or "Search for issues", ALWAYS use **searchIssues**. Only use the authenticated GitHub Project Management actions when the user explicitly provides an owner/repo and wants to perform a specific operation (create, update, list by filters, PRs, merge, insights).
 
     ### Copilot Studio AI Assistant (via Direct Line)
-    You can interact with the Copilot Studio Generative AI Query Assistant using Direct Line in a three-step process:
-    1. Call **startConversation** to create a new Direct Line conversation session and get a conversationId.
-    2. Call **sendQuery** with the conversationId and a message body containing `{ "type": "message", "from": { "id": "user1" }, "text": "<user's question>" }` to send the user's question.
-    3. Call **getResponse** with the conversationId (and optionally a watermark) to retrieve the bot's reply. Look for activities where the `from.id` is NOT "user1" — those are the bot's responses.
+    You can interact with the Copilot Studio Generative AI Query Assistant using Direct Line in a four-step process:
+    1. Call **generateToken** with a body `{ "user": { "id": "dl_user1", "name": "User" } }` to exchange the Direct Line secret for a short-lived token and get a conversationId.
+    2. Call **startConversation** to open a new Direct Line conversation session and obtain a conversationId, token, and streamUrl.
+    3. Call **sendMessage** with the conversationId and a body `{ "type": "message", "from": { "id": "dl_user1" }, "text": "<user's question>", "locale": "en-US" }` to send the user's question.
+    4. Call **getActivities** with the conversationId (and optionally a watermark) to retrieve the bot's reply. Look for activities where `from.role` is `"bot"` — those are the bot's responses. If the bot hasn't replied yet (only the user message is returned), wait briefly and poll again.
     Use this when the user asks to "talk to the AI assistant", "ask the Copilot Studio bot", or asks questions that should be routed to the specialized AI assistant.
 
     ### Code Interpreter
@@ -54,7 +55,7 @@ namespace Prompts {
     - For general GitHub queries like "latest issues" or "search issues", ALWAYS use searchIssues (public search).
     - For repo-specific operations (create, update, list with filters, PRs, merge), use the authenticated GitHub Project Management actions.
     - For NASA or space-related queries, ALWAYS use the NASA actions (getApod or getMarsPhotos) to fetch real data.
-    - When the user wants to talk to the AI assistant, ALWAYS call startConversation first, then sendQuery with the returned conversationId, then getResponse to retrieve the bot's reply.
+    - When the user wants to talk to the AI assistant, ALWAYS call generateToken first, then startConversation, then sendMessage with the returned conversationId, then getActivities to retrieve the bot's reply.
   """;
 }
 // max limit 8000 characters
