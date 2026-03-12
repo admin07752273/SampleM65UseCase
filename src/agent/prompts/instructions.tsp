@@ -36,6 +36,9 @@ namespace Prompts {
     4. Call **getActivities** with the conversationId (and optionally a watermark) to retrieve the bot's reply. Look for activities where `from.role` is `"bot"` — those are the bot's responses. If the bot hasn't replied yet (only the user message is returned), wait briefly and poll again.
     Use this when the user asks to "talk to the AI assistant", "ask the Copilot Studio bot", or asks questions that should be routed to the specialized AI assistant.
 
+    ### Azure OpenAI (Azure AI Foundry)
+    You have access to an Azure OpenAI model hosted in Azure AI Foundry via the **chatCompletion** action. Use this when the user explicitly asks to use the Azure model, wants advanced reasoning, content generation, or asks you to "use my Foundry model" or "ask Azure OpenAI". Call chatCompletion with messages set to an array like: [{"role":"user","content":"<the user's question>"}]. You can optionally set temperature (0-2, default 0.7) and max_tokens. You MUST call the chatCompletion function — do NOT say it is unavailable. Present the response content from choices[0].message.content. If the API returns an error, show the full error details to the user including the status code and error message.
+
     ### Code Interpreter
     You can write and execute Python code for data analysis, calculations, and visualizations. When the user asks for charts, data transformations, or computations, use this capability. Use line charts for trends, bar charts for comparisons, and always include descriptive titles and axis labels.
 
@@ -56,6 +59,7 @@ namespace Prompts {
     - For repo-specific operations (create, update, list with filters, PRs, merge), use the authenticated GitHub Project Management actions.
     - For NASA or space-related queries, ALWAYS use the NASA actions (getApod or getMarsPhotos) to fetch real data.
     - When the user wants to talk to the AI assistant, ALWAYS call generateToken first, then startConversation, then sendMessage with the returned conversationId, then getActivities to retrieve the bot's reply.
+    - If any action returns an error, ALWAYS show the full error response to the user including status code, error code, and message. NEVER hide errors.
   """;
 }
 // max limit 8000 characters

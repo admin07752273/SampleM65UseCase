@@ -13,14 +13,6 @@ provision:
     # the specified environment variable(s).
     writeToEnvironmentFile:
       teamsAppId: TEAMS_APP_ID
-  - uses: oauth/register
-    with:
-      name: OAuth2Auth
-      appId: ${{TEAMS_APP_ID}}
-      apiSpecPath: ./appPackage/.generated/githubauthapi-openapi.yml
-      flow: authorizationCode
-    writeToEnvironmentFile:
-      configurationId: OAUTH2AUTH_REGISTRATION_ID
 
   - uses: cli/runNpmCommand
     name: install dependencies
@@ -44,15 +36,36 @@ provision:
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
 
-  # Register API key for Direct Line (after TypeSpec compile generates the spec)
+  # Patch Azure OpenAI plugin auth reference
+  - uses: cli/runNpmCommand
+    name: Patch Azure OpenAI plugin auth
+    with:
+      args: run patch:aoai-plugin
+
+  # Register auth AFTER compile so the generated OpenAPI specs exist
   - uses: apiKey/register
     with:
       name: ApiKeyAuth
       appId: ${{TEAMS_APP_ID}}
       apiSpecPath: ./appPackage/.generated/copilotstudioapi-openapi.yml
-      primaryClientSecret: ${{DIRECT_LINE_SECRET}}
     writeToEnvironmentFile:
       registrationId: APIKEYAUTH_REGISTRATION_ID
+  - uses: oauth/register
+    with:
+      name: OAuth2Auth
+      appId: ${{TEAMS_APP_ID}}
+      apiSpecPath: ./appPackage/.generated/githubauthapi-openapi.yml
+      flow: authorizationCode
+    writeToEnvironmentFile:
+      configurationId: OAUTH2AUTH_REGISTRATION_ID
+  - uses: apiKey/register
+    with:
+      name: ApiKeyAuth
+      appId: ${{TEAMS_APP_ID}}
+      apiSpecPath: ./appPackage/.generated/azureopenaiapi-openapi.yml
+      primaryClientSecret: ${{AZURE_OPENAI_API_KEY}}
+    writeToEnvironmentFile:
+      registrationId: AZURE_OPENAI_AUTH_REGISTRATION_ID
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage

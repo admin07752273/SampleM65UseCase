@@ -15,21 +15,13 @@ using TypeSpec.M365.Copilot.Actions;
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "Authorization">)
 namespace CopilotStudioAPI {
 
-  // --- Step 1: Generate a Direct Line token from the secret ---
-  /** Exchange the Direct Line secret for a short-lived conversation token. */
-  @route("/v3/directline/tokens/generate")
-  @post
-  op generateToken(
-    @body tokenRequest: TokenRequest
-  ): TokenResponse | ErrorResponse;
-
-  // --- Step 2: Start a conversation ---
-  /** Start a new Direct Line conversation. Returns a conversationId, token, and streamUrl. */
+  // --- Step 1: Start a conversation ---
+  /** Start a new Direct Line conversation using the Direct Line secret. Returns a conversationId, token, and streamUrl. */
   @route("/v3/directline/conversations")
   @post
   op startConversation(): ConversationResponse | ErrorResponse;
 
-  // --- Step 3: Send a message to the bot ---
+  // --- Step 2: Send a message to the bot ---
   /** Send a user message into the conversation. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @post
@@ -38,7 +30,7 @@ namespace CopilotStudioAPI {
     @body activity: ActivityRequest
   ): SendActivityResponse | ErrorResponse;
 
-  // --- Step 4: Get activities (bot replies) ---
+  // --- Step 3: Get activities (bot replies) ---
   /** Retrieve all activities in the conversation. Pass watermark to get only new activities since the last poll. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @get
@@ -48,18 +40,6 @@ namespace CopilotStudioAPI {
   ): ActivitySet | ErrorResponse;
 
   // --- Request Models ---
-
-  model TokenRequest {
-    /** User identity for the token. The id must start with "dl_". */
-    user: TokenUser;
-  }
-
-  model TokenUser {
-    /** Unique user ID. Must start with "dl_". */
-    id: string;
-    /** Display name of the user. */
-    name?: string;
-  }
 
   model ActivityRequest {
     type: "message";
@@ -76,12 +56,6 @@ namespace CopilotStudioAPI {
   }
 
   // --- Response Models ---
-
-  model TokenResponse {
-    conversationId: string;
-    token: string;
-    expires_in: int32;
-  }
 
   model ConversationResponse {
     conversationId: string;

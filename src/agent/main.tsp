@@ -5,6 +5,7 @@ import "./actions/github.tsp";
 import "./actions/nasa.tsp";
 import "./actions/githubAuth.tsp";
 import "./actions/directline.tsp";
+import "./actions/azureOpenAI.tsp";
 import "./prompts/instructions.tsp";
 import "./env.tsp";
 
@@ -27,12 +28,16 @@ using TypeSpec.M365.Copilot.Agents;
   text: "How can I get help with Agents Toolkit?"
 })
 @conversationStarter(#{
-  title: "NASA Picture of the Day",
+  title: "NASA Picture of the Day2",
   text: "Get NASA's Astronomy Picture of the Day"
 })
 @conversationStarter(#{
   title: "Ask AI Assistant",
   text: "Ask the Copilot Studio AI assistant a question"
+})
+@conversationStarter(#{
+  title: "Ask Azure OpenAI",
+  text: "Use my Azure AI Foundry model to answer a question"
 })
 namespace Trial1 {  
 
@@ -49,13 +54,15 @@ op mergePullRequest is GitHubAuthAPI.mergePullRequest;
 op getProjectInsights is GitHubAuthAPI.getProjectInsights;
 
 // Copilot Studio AI Assistant (via Direct Line)
-op generateToken is CopilotStudioAPI.generateToken;
 op startConversation is CopilotStudioAPI.startConversation;
 op sendMessage is CopilotStudioAPI.sendMessage;
 op getActivities is CopilotStudioAPI.getActivities;
 
 op getApod is NasaAPI.getApod;
 op getMarsPhotos is NasaAPI.getMarsPhotos;
+
+// Azure OpenAI (Azure AI Foundry)
+op chatCompletion is AzureOpenAIAPI.chatCompletion;
 // Enable web search capability
 // op webSearch is AgentCapabilities.WebSearch;
 
