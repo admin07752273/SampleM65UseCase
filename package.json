@@ -12,5 +12,8 @@
     "@typespec/http": "1.5.0",
     "@typespec/openapi": "1.5.0",
     "@typespec/openapi3": "1.5.0"
+  },
+  "dependencies": {
+    "@microsoft/teams-app-test-tool": "^0.2.23-alpha.20260304-2229b3a.0"
   }
 }

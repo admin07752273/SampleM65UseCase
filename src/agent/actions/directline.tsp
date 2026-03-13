@@ -15,13 +15,19 @@ using TypeSpec.M365.Copilot.Actions;
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "Authorization">)
 namespace CopilotStudioAPI {
 
-  // --- Step 1: Start a conversation ---
-  /** Start a new Direct Line conversation using the Direct Line secret. Returns a conversationId, token, and streamUrl. */
+  // --- Step 1: Generate a short-lived token ---
+  /** Exchange the Direct Line secret for a short-lived token. Use this token for subsequent API calls instead of exposing the secret. */
+  @route("/v3/directline/tokens/generate")
+  @post
+  op generateToken(): TokenResponse | ErrorResponse;
+
+  // --- Step 2: Start a conversation ---
+  /** Start a new Direct Line conversation using the Direct Line secret or token. Returns a conversationId, token, and streamUrl. */
   @route("/v3/directline/conversations")
   @post
   op startConversation(): ConversationResponse | ErrorResponse;
 
-  // --- Step 2: Send a message to the bot ---
+  // --- Step 3: Send a message to the bot ---
   /** Send a user message into the conversation. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @post
@@ -30,7 +36,7 @@ namespace CopilotStudioAPI {
     @body activity: ActivityRequest
   ): SendActivityResponse | ErrorResponse;
 
-  // --- Step 3: Get activities (bot replies) ---
+  // --- Step 4: Get activities (bot replies) ---
   /** Retrieve all activities in the conversation. Pass watermark to get only new activities since the last poll. */
   @route("/v3/directline/conversations/{conversationId}/activities")
   @get
@@ -56,6 +62,12 @@ namespace CopilotStudioAPI {
   }
 
   // --- Response Models ---
+
+  model TokenResponse {
+    conversationId: string;
+    token: string;
+    expires_in: int32;
+  }
 
   model ConversationResponse {
     conversationId: string;

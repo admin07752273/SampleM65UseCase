@@ -30,6 +30,6 @@
     "validDomains": [],
     "webApplicationInfo": {
         "id": "a4edd512-e1f8-470b-a5a4-ef47b6da5a5d",
-        "resource": "https://api.powerplatform.com"
+        "resource": "api://auth-f5bd4842-ce65-42b9-9053-76e4836f1a5d/a4edd512-e1f8-470b-a5a4-ef47b6da5a5d"
     }
 }

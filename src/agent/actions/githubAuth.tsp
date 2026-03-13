@@ -11,13 +11,16 @@ using TypeSpec.M365.Copilot.Actions;
     descriptionForHuman: "Use this API to manage GitHub repositories, track issues, and coordinate development projects"
 })
 @server("https://api.github.com", "GitHub API")
-@useAuth(OAuth2Auth<[{
-  type: OAuth2FlowType.authorizationCode,
-  authorizationUrl: "https://github.com/login/oauth/authorize",
-  tokenUrl: "https://github.com/login/oauth/access_token",
-  scopes: ["repo", "issues", "pull_requests", "project"]
-}]>)
+@useAuth(GitHubOAuth)
 namespace GitHubAuthAPI {
+
+  /** OAuth2 for GitHub API */
+  model GitHubOAuth is OAuth2Auth<[{
+    type: OAuth2FlowType.authorizationCode,
+    authorizationUrl: "https://github.com/login/oauth/authorize",
+    tokenUrl: "https://github.com/login/oauth/access_token",
+    scopes: ["repo", "issues", "pull_requests", "project"]
+  }]>;
   // Issue Management
   /** Create a new issue in a GitHub repository. */
   @route("/repos/{owner}/{repo}/issues")

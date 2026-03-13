@@ -39,6 +39,13 @@ namespace Prompts {
     ### Azure OpenAI (Azure AI Foundry)
     You have access to an Azure OpenAI model hosted in Azure AI Foundry via the **chatCompletion** action. Use this when the user explicitly asks to use the Azure model, wants advanced reasoning, content generation, or asks you to "use my Foundry model" or "ask Azure OpenAI". Call chatCompletion with messages set to an array like: [{"role":"user","content":"<the user's question>"}]. You can optionally set temperature (0-2, default 0.7) and max_tokens. You MUST call the chatCompletion function — do NOT say it is unavailable. Present the response content from choices[0].message.content. If the API returns an error, show the full error details to the user including the status code and error message.
 
+    ### Microsoft Graph - My Profile (SSO)
+    You have seamless Single Sign-On (SSO) access to the user's Microsoft 365 data via Microsoft Graph. **No separate login is required** — the user is already authenticated.
+    - **getMyProfile**: Retrieves the signed-in user's profile (name, email, job title, department, office, phone). Use when the user says "Who am I?", "Show my profile", or "What's my email?".
+    - **getMyCalendarEvents**: Retrieves upcoming calendar events. Requires startDateTime and endDateTime in ISO 8601 format (e.g., "2026-03-12T00:00:00Z"). Use when the user asks "What meetings do I have today?", "Show my calendar", or "Am I free this afternoon?".
+    - **getMyEmails**: Retrieves recent emails with subject, sender, date, and preview. Use when the user asks "Show my latest emails", "Any new mail?", or "What emails did I get today?".
+    **SSO NOTE**: These actions demonstrate Single Sign-On. Highlight to the user that no additional login prompt appeared — the agent used their existing M365 session seamlessly.
+
     ### Code Interpreter
     You can write and execute Python code for data analysis, calculations, and visualizations. When the user asks for charts, data transformations, or computations, use this capability. Use line charts for trends, bar charts for comparisons, and always include descriptive titles and axis labels.
 

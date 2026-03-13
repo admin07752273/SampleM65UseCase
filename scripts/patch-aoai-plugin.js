@@ -1,16 +1,27 @@
-// Patches the generated Azure OpenAI API plugin to use its own auth registration ID
-// instead of the shared APIKEYAUTH_REGISTRATION_ID.
+// Patches the generated Azure OpenAI API files to use a distinct auth name
+// ("AzureOpenAIApiKeyAuth") so it doesn't collide with CopilotStudioAPI's "ApiKeyAuth"
+// in the Teams-portal API-key registration.
 const fs = require("fs");
 const path = require("path");
 
-const pluginPath = path.join(
-  __dirname,
-  "..",
-  "appPackage",
-  ".generated",
-  "azureopenaiapi-apiplugin.json"
-);
+const generatedDir = path.join(__dirname, "..", "appPackage", ".generated");
 
+// 1. Rename the security scheme in the OpenAPI spec
+const openapiPath = path.join(generatedDir, "azureopenaiapi-openapi.yml");
+let openapi = fs.readFileSync(openapiPath, "utf8");
+const patchedOpenapi = openapi
+  .replace(/^(\s+)ApiKeyAuth:/m, "$1AzureOpenAIApiKeyAuth:")
+  .replace(/- ApiKeyAuth: \[ \]/g, "- AzureOpenAIApiKeyAuth: [ ]");
+
+if (openapi !== patchedOpenapi) {
+  fs.writeFileSync(openapiPath, patchedOpenapi, "utf8");
+  console.log("Patched azureopenaiapi-openapi.yml security scheme name.");
+} else {
+  console.log("azureopenaiapi-openapi.yml already has correct scheme name.");
+}
+
+// 2. Update the plugin registration reference
+const pluginPath = path.join(generatedDir, "azureopenaiapi-apiplugin.json");
 const content = fs.readFileSync(pluginPath, "utf8");
 const patched = content.replace(
   /\$\{\{APIKEYAUTH_REGISTRATION_ID\}\}/g,

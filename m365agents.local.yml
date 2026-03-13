@@ -36,12 +36,6 @@ provision:
       outputDir: ./appPackage/.generated
       typeSpecConfigPath: ./tspconfig.yaml
 
-  # Patch Azure OpenAI plugin auth reference
-  - uses: cli/runNpmCommand
-    name: Patch Azure OpenAI plugin auth
-    with:
-      args: run patch:aoai-plugin
-
   # Register auth AFTER compile so the generated OpenAPI specs exist
   - uses: apiKey/register
     with:
@@ -52,20 +46,31 @@ provision:
       registrationId: APIKEYAUTH_REGISTRATION_ID
   - uses: oauth/register
     with:
-      name: OAuth2Auth
+      name: GitHubOAuth
       appId: ${{TEAMS_APP_ID}}
       apiSpecPath: ./appPackage/.generated/githubauthapi-openapi.yml
       flow: authorizationCode
     writeToEnvironmentFile:
-      configurationId: OAUTH2AUTH_REGISTRATION_ID
+      configurationId: GITHUBOAUTH_REGISTRATION_ID
+  - uses: oauth/register
+    with:
+      name: MicrosoftGraphSSO
+      appId: ${{TEAMS_APP_ID}}
+      apiSpecPath: ./appPackage/.generated/microsoftgraphapi-openapi.yml
+      flow: authorizationCode
+      clientId: ${{GRAPH_AAD_APP_CLIENT_ID}}
+      clientSecret: ${{SECRET_GRAPH_AAD_APP_CLIENT_SECRET}}
+      isPKCEEnabled: true
+    writeToEnvironmentFile:
+      configurationId: MICROSOFTGRAPHSSO_REGISTRATION_ID
   - uses: apiKey/register
     with:
-      name: ApiKeyAuth
+      name: AzureOpenAIApiKeyAuth
       appId: ${{TEAMS_APP_ID}}
       apiSpecPath: ./appPackage/.generated/azureopenaiapi-openapi.yml
       primaryClientSecret: ${{AZURE_OPENAI_API_KEY}}
     writeToEnvironmentFile:
-      registrationId: AZURE_OPENAI_AUTH_REGISTRATION_ID
+      registrationId: AZUREOPENAIAPIKEYAUTH_REGISTRATION_ID
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage

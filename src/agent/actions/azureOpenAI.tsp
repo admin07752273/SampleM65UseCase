@@ -12,8 +12,11 @@ using TypeSpec.M365.Copilot.Actions;
   descriptionForHuman: "Chat with your Azure AI Foundry model for intelligent responses, reasoning, and content generation.",
   descriptionForModel: "Use this action to send a chat completion request to the Azure OpenAI model hosted in Azure AI Foundry. Call chatCompletion with the user's prompt text. The model will return generated text responses.",
 })
-@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)
+@useAuth(AzureOpenAIApiKeyAuth)
 namespace AzureOpenAIAPI {
+
+  /** API key authentication for Azure OpenAI */
+  model AzureOpenAIApiKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "api-key">;
 
   const SERVER_URL = Environment.AZURE_OPENAI_ENDPOINT;
 
